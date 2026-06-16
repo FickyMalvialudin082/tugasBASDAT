@@ -1,0 +1,491 @@
+/* ============================================
+   FILE: assets/css/style.css
+   FUNGSI: CSS Custom untuk tampilan website
+   ============================================ */
+
+/* Root Variables */
+:root {
+    --primary-color: #1A312C;
+    --primary-dark: #428475;
+    --secondary-color: #f8f9fa;
+    --text-color: #333;
+    --text-muted: #6c757d;
+    --border-color: #e9ecef;
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+}
+
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f2f5;
+    color: var(--text-color);
+    overflow-x: hidden;
+}
+
+/* ============================================
+   SIDEBAR STYLES (WARNA KREM #FFF4E1)
+   ============================================ */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 280px;
+    height: 100vh;
+    background: #FFF4E1;
+    color: #1A312C;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.05);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.2);
+    border-radius: 5px;
+}
+
+/* Sidebar Brand */
+.sidebar-brand {
+    padding: 25px 20px;
+    text-align: center;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.sidebar-brand i {
+    font-size: 45px;
+    margin-bottom: 10px;
+    color: #1A312C;
+}
+
+.sidebar-brand h3 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+    color: #1A312C;
+}
+
+.sidebar-brand small {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    color: #666;
+}
+
+/* Sidebar Navigation */
+.sidebar-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-nav li {
+    margin: 5px 15px;
+}
+
+.sidebar-nav li a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    color: #1A312C;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.sidebar-nav li a i {
+    width: 24px;
+    font-size: 1.2rem;
+    color: #1A312C;
+}
+
+.sidebar-nav li a:hover {
+    background: rgba(26, 49, 44, 0.1);
+    color: #1A312C;
+    transform: translateX(5px);
+}
+
+.sidebar-nav li a:hover i {
+    color: #1A312C;
+}
+
+.sidebar-nav li.active a {
+    background: rgba(26, 49, 44, 0.15);
+    color: #1A312C;
+    font-weight: bold;
+}
+
+.sidebar-nav li.active a i {
+    color: #1A312C;
+}
+
+/* ============================================
+   MAIN CONTENT STYLES
+   ============================================ */
+.main-content {
+    margin-left: 280px;
+    min-height: 100vh;
+    transition: all 0.3s ease;
+}
+
+/* Top Navbar */
+.top-navbar {
+    background: white;
+    padding: 15px 30px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+.toggle-sidebar {
+    display: none;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.navbar-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.navbar-info span {
+    color: var(--text-color);
+}
+
+.navbar-info i {
+    color: var(--primary-color);
+    margin-right: 5px;
+}
+
+/* Content Wrapper */
+.content-wrapper {
+    padding: 30px;
+}
+
+/* ============================================
+   CARD STYLES
+   ============================================ */
+.card {
+    border: none;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    background: white;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+.card-header {
+    background: white;
+    border-bottom: 1px solid var(--border-color);
+    padding: 15px 20px;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* Stats Card */
+.stats-card {
+    border-left: 4px solid var(--primary-color);
+}
+
+.stats-card .stats-icon {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    opacity: 0.3;
+}
+
+.stats-card h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 10px 0 5px;
+    color: var(--primary-color);
+}
+
+.stats-card p {
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* ============================================
+   TABLE STYLES
+   ============================================ */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background: var(--primary-color);
+    color: white;
+    padding: 12px 15px;
+    font-weight: 500;
+    border: none;
+}
+
+.table tbody td {
+    padding: 12px 15px;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table tbody tr:hover {
+    background: rgba(26, 49, 44, 0.05);
+}
+
+/* Thumbnail Image */
+.thumbnail {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ============================================
+   FORM STYLES
+   ============================================ */
+.form-label {
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text-color);
+}
+
+.form-control, .form-select {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(26, 49, 44, 0.25);
+}
+
+/* ============================================
+   BUTTON STYLES
+   ============================================ */
+.btn {
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+}
+
+/* ============================================
+   BUTTON ACTIVE/CLICK EFFECTS (BARU!)
+   ============================================ */
+
+/* Efek saat button ditekan - mengecil sedikit */
+.btn:active {
+    transform: scale(0.95) !important;
+    transition: transform 0.05s ease !important;
+}
+
+/* Warna button primary saat ditekan */
+.btn-primary:active {
+    background: #0a261f !important;  /* Lebih gelap dari #1A312C */
+    border-color: #0a261f !important;
+    box-shadow: none !important;
+}
+
+/* Warna button success saat ditekan */
+.btn-success:active {
+    background: #146c43 !important;
+    border-color: #146c43 !important;
+}
+
+/* Warna button danger (hapus) saat ditekan */
+.btn-danger:active {
+    background: #8b1a25 !important;
+    border-color: #8b1a25 !important;
+}
+
+/* Warna button warning (edit) saat ditekan */
+.btn-warning:active {
+    background: #cca000 !important;
+    border-color: #cca000 !important;
+}
+
+/* Warna button info (detail/cetak) saat ditekan */
+.btn-info:active {
+    background: #0d8b9c !important;
+    border-color: #0d8b9c !important;
+}
+
+/* Warna button secondary saat ditekan */
+.btn-secondary:active {
+    background: #5a6268 !important;
+    border-color: #5a6268 !important;
+}
+
+/* Efek fokus/lingkaran saat button diklik */
+.btn:focus {
+    box-shadow: 0 0 0 3px rgba(26, 49, 44, 0.3) !important;
+    outline: none !important;
+}
+
+/* Hilangkan efek fokus untuk button yang tidak diinginkan */
+.btn-primary:focus {
+    box-shadow: 0 0 0 3px rgba(26, 49, 44, 0.4) !important;
+}
+
+/* ============================================
+   BADGE STYLES
+   ============================================ */
+.badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.badge-menunggu {
+    background: #ffc107;
+    color: #856404;
+}
+
+.badge-diperiksa {
+    background: #17a2b8;
+    color: white;
+}
+
+.badge-selesai {
+    background: #28a745;
+    color: white;
+}
+
+/* ============================================
+   SEARCH BAR
+   ============================================ */
+.search-bar {
+    position: relative;
+    max-width: 300px;
+}
+
+.search-bar input {
+    padding-right: 40px;
+}
+
+.search-bar button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    background: none;
+    border: none;
+    padding: 0 12px;
+    color: var(--text-muted);
+}
+
+/* ============================================
+   RESPONSIVE STYLES
+   ============================================ */
+@media (max-width: 992px) {
+    .sidebar {
+        margin-left: -280px;
+    }
+    
+    .sidebar.active {
+        margin-left: 0;
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .toggle-sidebar {
+        display: block;
+    }
+}
+
+@media (max-width: 768px) {
+    .content-wrapper {
+        padding: 15px;
+    }
+    
+    .stats-card h2 {
+        font-size: 1.5rem;
+    }
+    
+    .table thead th {
+        font-size: 0.85rem;
+        padding: 8px 10px;
+    }
+    
+    .table tbody td {
+        font-size: 0.8rem;
+        padding: 8px 10px;
+    }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease;
+}
