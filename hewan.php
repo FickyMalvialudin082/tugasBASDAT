@@ -4,9 +4,47 @@
 // FUNGSI: Menampilkan dan mengelola data hewan
 // ============================================
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 require_once 'database.php';
 
-// Cari data
+// ============================================
+// PROSES HAPUS DATA HEWAN
+// ============================================
+if (isset($_GET['hapus'])) {
+    $id = (int)$_GET['hapus'];
+    
+    // Ambil nama file foto sebelum hapus
+    $query_foto = "SELECT foto FROM hewan WHERE id_hewan = $id";
+    $result_foto = mysqli_query($koneksi, $query_foto);
+    $data_foto = mysqli_fetch_assoc($result_foto);
+    
+    // Hapus file foto jika ada
+    if ($data_foto['foto'] && file_exists('uploads/' . $data_foto['foto'])) {
+        unlink('uploads/' . $data_foto['foto']);
+    }
+    
+    // Hapus data hewan
+    $query = "DELETE FROM hewan WHERE id_hewan = $id";
+    
+    if (mysqli_query($koneksi, $query)) {
+        header("Location: hewan.php?success=Data hewan berhasil dihapus");
+    } else {
+        header("Location: hewan.php?error=Gagal menghapus data: " . mysqli_error($koneksi));
+    }
+    exit();
+}
+
+// ============================================
+// AMBIL NOTIFIKASI DARI URL
+// ============================================
+$success_msg = isset($_GET['success']) ? $_GET['success'] : '';
+$error_msg = isset($_GET['error']) ? $_GET['error'] : '';
+
+// ============================================
+// CARI DATA
+// ============================================
 $search = isset($_GET['search']) ? mysqli_real_escape_string($koneksi, $_GET['search']) : '';
 $where = '';
 if ($search) {
@@ -49,6 +87,22 @@ $result = mysqli_query($koneksi, $query);
                 <i class="fas fa-plus"></i> Tambah Hewan
             </a>
         </div>
+        
+        <!-- NOTIFIKASI SUKSES -->
+        <?php if ($success_msg): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> <?php echo htmlspecialchars($success_msg); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <?php endif; ?>
+        
+        <!-- NOTIFIKASI ERROR -->
+        <?php if ($error_msg): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> <?php echo htmlspecialchars($error_msg); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <?php endif; ?>
         
         <!-- Search Bar -->
         <div class="card mb-4">
@@ -110,9 +164,9 @@ $result = mysqli_query($koneksi, $query);
                                     <a href="edit_hewan.php?id=<?php echo $row['id_hewan']; ?>" class="btn btn-sm btn-warning">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <button class="btn btn-sm btn-danger" onclick="hapusData(<?php echo $row['id_hewan']; ?>, '<?php echo $row['nama_hewan']; ?>')">
+                                    <a href="?hapus=<?php echo $row['id_hewan']; ?>" class="btn btn-sm btn-danger" onclick="return confirmHapus(event, '<?php echo addslashes($row['nama_hewan']); ?>')">
                                         <i class="fas fa-trash"></i>
-                                    </button>
+                                    </a>
                                 </td>
                             </tr>
                             <?php endwhile; ?>
@@ -135,9 +189,14 @@ $result = mysqli_query($koneksi, $query);
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/script.js"></script>
 <script>
-function hapusData(id, nama) {
+// ============================================
+// FUNGSI KONFIRMASI HAPUS (SAMA SEPERTI PEMILIK)
+// ============================================
+function confirmHapus(event, nama) {
+    event.preventDefault();
+    var url = event.currentTarget.getAttribute('href');
+    
     Swal.fire({
         title: 'Yakin ingin menghapus?',
         text: "Data hewan '" + nama + "' akan dihapus permanen!",
@@ -149,10 +208,26 @@ function hapusData(id, nama) {
         cancelButtonText: 'Batal'
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = 'hapus_hewan.php?id=' + id;
+            window.location.href = url;
         }
     });
+    return false;
 }
+
+// ============================================
+// AUTO HIDE ALERT SETELAH 3 DETIK
+// ============================================
+setTimeout(function() {
+    var alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function(alert) {
+        alert.style.transition = 'opacity 0.5s';
+        alert.style.opacity = '0';
+        setTimeout(function() {
+            alert.remove();
+        }, 500);
+    });
+}, 3000);
 </script>
+
 </body>
 </html>

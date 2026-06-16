@@ -1,7 +1,18 @@
 <?php
+// ============================================
+// FILE: pemilik.php
+// FUNGSI: CRUD Data Pemilik
+// ============================================
+
+// Aktifkan error reporting untuk debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 require_once 'database.php';
 
-// Proses tambah
+// ============================================
+// PROSES TAMBAH DATA
+// ============================================
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'tambah') {
     $nama = mysqli_real_escape_string($koneksi, $_POST['nama_pemilik']);
     $jk = mysqli_real_escape_string($koneksi, $_POST['jenis_kelamin']);
@@ -12,32 +23,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
               VALUES ('$nama', '$jk', '$telp', '$alamat')";
     
     if (mysqli_query($koneksi, $query)) {
-        echo "<script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: 'Data pemilik berhasil ditambahkan',
-                showConfirmButton: false,
-                timer: 1500
-            }).then(() => {
-                window.location.href = 'pemilik.php';
-            });
-        </script>";
+        // Redirect dengan parameter sukses
+        header("Location: pemilik.php?success=Data pemilik berhasil ditambahkan");
     } else {
-        echo "<script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Gagal!',
-                text: 'Gagal menambahkan data: " . mysqli_error($koneksi) . "'
-            }).then(() => {
-                window.location.href = 'pemilik.php';
-            });
-        </script>";
+        // Redirect dengan parameter error
+        header("Location: pemilik.php?error=Gagal menambahkan data: " . mysqli_error($koneksi));
     }
     exit();
 }
 
-// Proses edit
+// ============================================
+// PROSES EDIT DATA
+// ============================================
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'edit') {
     $id = (int)$_POST['id_pemilik'];
     $nama = mysqli_real_escape_string($koneksi, $_POST['nama_pemilik']);
@@ -53,32 +50,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
               WHERE id_pemilik=$id";
     
     if (mysqli_query($koneksi, $query)) {
-        echo "<script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: 'Data pemilik berhasil diupdate',
-                showConfirmButton: false,
-                timer: 1500
-            }).then(() => {
-                window.location.href = 'pemilik.php';
-            });
-        </script>";
+        header("Location: pemilik.php?success=Data pemilik berhasil diupdate");
     } else {
-        echo "<script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Gagal!',
-                text: 'Gagal mengupdate data: " . mysqli_error($koneksi) . "'
-            }).then(() => {
-                window.location.href = 'pemilik.php';
-            });
-        </script>";
+        header("Location: pemilik.php?error=Gagal mengupdate data: " . mysqli_error($koneksi));
     }
     exit();
 }
 
-// Proses hapus
+// ============================================
+// PROSES HAPUS DATA
+// ============================================
 if (isset($_GET['hapus'])) {
     $id = (int)$_GET['hapus'];
 
@@ -87,37 +68,26 @@ if (isset($_GET['hapus'])) {
     $data = mysqli_fetch_assoc($cek);
 
     if ($data['total'] > 0) {
-        echo "<script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Gagal Hapus!',
-                text: 'Pemilik ini memiliki " . $data['total'] . " data hewan. Hapus data hewan terlebih dahulu!'
-            }).then(() => {
-                location.href='pemilik.php';
-            });
-        </script>";
+        header("Location: pemilik.php?error=Pemilik ini memiliki " . $data['total'] . " data hewan. Hapus data hewan terlebih dahulu!");
         exit();
     }
 
     // Hapus data pemilik
     mysqli_query($koneksi, "DELETE FROM pemilik WHERE id_pemilik = $id");
-
-    echo "<script>
-        Swal.fire({
-            icon: 'success',
-            title: 'Terhapus!',
-            text: 'Data pemilik berhasil dihapus',
-            showConfirmButton: false,
-            timer: 1500
-        }).then(() => {
-            location.href='pemilik.php';
-        });
-    </script>";
+    header("Location: pemilik.php?success=Data pemilik berhasil dihapus");
     exit();
 }
 
-// Ambil data
-$search = isset($_GET['search']) ? mysqli_real_escape_string($koneksi, $_GET['search']) : '';
+// ============================================
+// AMBIL NOTIFIKASI DARI URL
+// ============================================
+$success_msg = isset($_GET['success']) ? $_GET['success'] : '';
+$error_msg = isset($_GET['error']) ? $_GET['error'] : '';
+
+// ============================================
+// AMBIL DATA PEMILIK
+// ============================================
+$search = isset($_GET['search']) ? $_GET['search'] : '';
 $where = $search ? "WHERE nama_pemilik LIKE '%$search%'" : "";
 $query = "SELECT * FROM pemilik $where ORDER BY id_pemilik DESC";
 $result = mysqli_query($koneksi, $query);
@@ -148,7 +118,23 @@ $result = mysqli_query($koneksi, $query);
             </button>
         </div>
         
-        <!-- Search -->
+        <!-- NOTIFIKASI SUKSES -->
+        <?php if ($success_msg): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> <?php echo htmlspecialchars($success_msg); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <?php endif; ?>
+        
+        <!-- NOTIFIKASI ERROR -->
+        <?php if ($error_msg): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> <?php echo htmlspecialchars($error_msg); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <?php endif; ?>
+        
+        <!-- SEARCH -->
         <div class="card mb-4">
             <div class="card-body">
                 <form method="GET" class="row g-3">
@@ -162,13 +148,20 @@ $result = mysqli_query($koneksi, $query);
             </div>
         </div>
         
-        <!-- Table -->
+        <!-- TABLE -->
         <div class="card">
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
                         <thead>
-                            <tr><th>No</th><th>Nama</th><th>JK</th><th>Telepon</th><th>Alamat</th><th>Aksi</th></tr>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama</th>
+                                <th>JK</th>
+                                <th>Telepon</th>
+                                <th>Alamat</th>
+                                <th>Aksi</th>
+                            </tr>
                         </thead>
                         <tbody>
                             <?php $no=1; while($row = mysqli_fetch_assoc($result)): ?>
@@ -182,7 +175,7 @@ $result = mysqli_query($koneksi, $query);
                                     <button class="btn btn-sm btn-warning" onclick="editData(<?php echo $row['id_pemilik']; ?>, '<?php echo addslashes($row['nama_pemilik']); ?>', '<?php echo $row['jenis_kelamin']; ?>', '<?php echo $row['no_telepon']; ?>', '<?php echo addslashes($row['alamat']); ?>')">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <a href="?hapus=<?php echo $row['id_pemilik']; ?>" class="btn btn-sm btn-danger" onclick="return confirmHapus(event)">
+                                    <a href="?hapus=<?php echo $row['id_pemilik']; ?>" class="btn btn-sm btn-danger" onclick="return confirmHapus(event, '<?php echo addslashes($row['nama_pemilik']); ?>')">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </td>
@@ -196,7 +189,9 @@ $result = mysqli_query($koneksi, $query);
     </div>
 </div>
 
-<!-- Modal Tambah -->
+<!-- ============================================ -->
+<!-- MODAL TAMBAH -->
+<!-- ============================================ -->
 <div class="modal fade" id="tambahModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -207,21 +202,38 @@ $result = mysqli_query($koneksi, $query);
             <form method="POST">
                 <input type="hidden" name="action" value="tambah">
                 <div class="modal-body">
-                    <div class="mb-3"><label>Nama Pemilik</label><input type="text" name="nama_pemilik" class="form-control" required></div>
+                    <div class="mb-3">
+                        <label>Nama Pemilik <span class="text-danger">*</span></label>
+                        <input type="text" name="nama_pemilik" class="form-control" required>
+                    </div>
                     <div class="mb-3">
                         <label>Jenis Kelamin</label>
-                        <select name="jenis_kelamin" class="form-select"><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select>
+                        <select name="jenis_kelamin" class="form-select">
+                            <option value="Laki-laki">Laki-laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
                     </div>
-                    <div class="mb-3"><label>No Telepon</label><input type="text" name="no_telepon" class="form-control"></div>
-                    <div class="mb-3"><label>Alamat</label><textarea name="alamat" class="form-control" rows="3"></textarea></div>
+                    <div class="mb-3">
+                        <label>No Telepon</label>
+                        <input type="text" name="no_telepon" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label>Alamat</label>
+                        <textarea name="alamat" class="form-control" rows="3"></textarea>
+                    </div>
                 </div>
-                <div class="modal-footer"><button type="submit" class="btn btn-primary">Simpan</button></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- Modal Edit -->
+<!-- ============================================ -->
+<!-- MODAL EDIT -->
+<!-- ============================================ -->
 <div class="modal fade" id="editModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -233,12 +245,30 @@ $result = mysqli_query($koneksi, $query);
                 <input type="hidden" name="action" value="edit">
                 <input type="hidden" name="id_pemilik" id="edit_id">
                 <div class="modal-body">
-                    <div class="mb-3"><label>Nama Pemilik</label><input type="text" name="nama_pemilik" id="edit_nama" class="form-control" required></div>
-                    <div class="mb-3"><label>Jenis Kelamin</label><select name="jenis_kelamin" id="edit_jk" class="form-select"><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
-                    <div class="mb-3"><label>No Telepon</label><input type="text" name="no_telepon" id="edit_telp" class="form-control"></div>
-                    <div class="mb-3"><label>Alamat</label><textarea name="alamat" id="edit_alamat" class="form-control" rows="3"></textarea></div>
+                    <div class="mb-3">
+                        <label>Nama Pemilik <span class="text-danger">*</span></label>
+                        <input type="text" name="nama_pemilik" id="edit_nama" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Jenis Kelamin</label>
+                        <select name="jenis_kelamin" id="edit_jk" class="form-select">
+                            <option value="Laki-laki">Laki-laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label>No Telepon</label>
+                        <input type="text" name="no_telepon" id="edit_telp" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label>Alamat</label>
+                        <textarea name="alamat" id="edit_alamat" class="form-control" rows="3"></textarea>
+                    </div>
                 </div>
-                <div class="modal-footer"><button type="submit" class="btn btn-primary">Update</button></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </div>
             </form>
         </div>
     </div>
@@ -246,6 +276,9 @@ $result = mysqli_query($koneksi, $query);
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+// ============================================
+// FUNGSI EDIT DATA
+// ============================================
 function editData(id, nama, jk, telp, alamat) {
     document.getElementById('edit_id').value = id;
     document.getElementById('edit_nama').value = nama;
@@ -255,23 +288,46 @@ function editData(id, nama, jk, telp, alamat) {
     new bootstrap.Modal(document.getElementById('editModal')).show();
 }
 
-function confirmHapus(event) {
+// ============================================
+// FUNGSI KONFIRMASI HAPUS
+// ============================================
+// ============================================
+// FUNGSI KONFIRMASI HAPUS (DIPERBAIKI)
+// ============================================
+function confirmHapus(event, nama) {
     event.preventDefault();
+    var url = event.currentTarget.getAttribute('href');
+    
     Swal.fire({
-        title: 'Yakin?',
-        text: 'Data pemilik akan dihapus permanen!',
+        title: 'Yakin ingin menghapus?',
+        text: "Data pemilik '" + nama + "' akan dihapus permanen!",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#1A312C',
+        confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
         confirmButtonText: 'Ya, hapus!',
         cancelButtonText: 'Batal'
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = event.target.href;
+            window.location.href = url;
         }
     });
+    return false;
 }
+
+// ============================================
+// AUTO HIDE ALERT SETELAH 3 DETIK
+// ============================================
+setTimeout(function() {
+    var alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function(alert) {
+        alert.style.transition = 'opacity 0.5s';
+        alert.style.opacity = '0';
+        setTimeout(function() {
+            alert.remove();
+        }, 500);
+    });
+}, 3000);
 </script>
 
 </body>

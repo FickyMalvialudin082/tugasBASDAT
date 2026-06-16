@@ -11,7 +11,7 @@ if (!$koneksi) {
     die("Koneksi database gagal: " . mysqli_connect_error());
 }
 
-// Cek pesan sukses/error dari hapus
+// Cek pesan sukses/error dari URL (untuk notifikasi)
 $success_msg = isset($_GET['success']) ? $_GET['success'] : '';
 $error_msg = isset($_GET['error']) ? $_GET['error'] : '';
 
@@ -49,6 +49,7 @@ $total_selesai = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as t
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
@@ -65,22 +66,6 @@ $total_selesai = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as t
                 <i class="fas fa-plus"></i> Tambah Rawat Inap
             </a>
         </div>
-        
-        <!-- Alert Success -->
-        <?php if ($success_msg): ?>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle"></i> <?php echo htmlspecialchars($success_msg); ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        <?php endif; ?>
-
-        <!-- Alert Error -->
-        <?php if ($error_msg): ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-triangle"></i> <?php echo htmlspecialchars($error_msg); ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        <?php endif; ?>
         
         <!-- Stats -->
         <div class="row mb-4">
@@ -170,12 +155,10 @@ $total_selesai = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as t
                                     <a href="edit_rawat_inap.php?id=<?php echo $row['id_rawat']; ?>" class="btn btn-sm btn-warning">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <!-- HAPUS LANGSUNG DENGAN confirm() bawaan browser -->
-                                    <a href="hapus_rawat_inap.php?id=<?php echo $row['id_rawat']; ?>" 
-                                       class="btn btn-sm btn-danger" 
-                                       onclick="return confirm('Yakin ingin menghapus data rawat inap untuk hewan <?php echo $row['nama_hewan']; ?>?')">
+                                    <!-- Tombol hapus dengan SweetAlert konfirmasi -->
+                                    <button class="btn btn-sm btn-danger" onclick="hapusData(<?php echo $row['id_rawat']; ?>, '<?php echo addslashes($row['nama_hewan']); ?>')">
                                         <i class="fas fa-trash"></i>
-                                    </a>
+                                    </button>
                                 </td>
                             </tr>
                             <?php endwhile; ?>
@@ -197,5 +180,60 @@ $total_selesai = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as t
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ============================================ -->
+<!-- SCRIPT SWEETALERT UNTUK KONFIRMASI HAPUS -->
+<!-- ============================================ -->
+<script>
+function hapusData(id, nama) {
+    Swal.fire({
+        title: 'Yakin ingin menghapus?',
+        text: "Data rawat inap untuk '" + nama + "' akan dihapus permanen!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = 'hapus_rawat_inap.php?id=' + id;
+        }
+    });
+}
+</script>
+
+<!-- ============================================ -->
+<!-- SCRIPT SWEETALERT UNTUK NOTIFIKASI SUKSES/ERROR -->
+<!-- ============================================ -->
+<?php if ($success_msg): ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '<?php echo addslashes($success_msg); ?>',
+            showConfirmButton: true,
+            confirmButtonText: 'OK',
+            timer: 2000
+        });
+    });
+</script>
+<?php endif; ?>
+
+<?php if ($error_msg): ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: '<?php echo addslashes($error_msg); ?>',
+            showConfirmButton: true,
+            confirmButtonText: 'OK'
+        });
+    });
+</script>
+<?php endif; ?>
+
 </body>
 </html>

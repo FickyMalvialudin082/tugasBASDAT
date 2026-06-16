@@ -4,6 +4,9 @@
 // FUNGSI: Form tambah data hewan
 // ============================================
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 require_once 'database.php';
 
 // Ambil data pemilik untuk dropdown
@@ -12,12 +15,12 @@ $pemilik_result = mysqli_query($koneksi, $pemilik_query);
 
 // Proses tambah data
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $id_pemilik = mysqli_real_escape_string($koneksi, $_POST['id_pemilik']);
+    $id_pemilik = (int)$_POST['id_pemilik'];
     $nama_hewan = mysqli_real_escape_string($koneksi, $_POST['nama_hewan']);
     $jenis_hewan = mysqli_real_escape_string($koneksi, $_POST['jenis_hewan']);
     $ras = mysqli_real_escape_string($koneksi, $_POST['ras']);
     $jenis_kelamin = mysqli_real_escape_string($koneksi, $_POST['jenis_kelamin']);
-    $tanggal_lahir = mysqli_real_escape_string($koneksi, $_POST['tanggal_lahir']);
+    $tanggal_lahir = $_POST['tanggal_lahir'];
     $warna = mysqli_real_escape_string($koneksi, $_POST['warna']);
     $keluhan = mysqli_real_escape_string($koneksi, $_POST['keluhan']);
     
@@ -32,26 +35,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (in_array($ext, $allowed) && $file_size <= 2 * 1024 * 1024) {
             $foto = time() . '_' . uniqid() . '.' . $ext;
             move_uploaded_file($_FILES['foto']['tmp_name'], 'uploads/' . $foto);
+        } else {
+            $error = "Format file harus JPG, JPEG, atau PNG. Maksimal 2MB!";
         }
     }
     
-    $query = "INSERT INTO hewan (id_pemilik, nama_hewan, jenis_hewan, ras, jenis_kelamin, tanggal_lahir, warna, keluhan, foto) 
-              VALUES ('$id_pemilik', '$nama_hewan', '$jenis_hewan', '$ras', '$jenis_kelamin', '$tanggal_lahir', '$warna', '$keluhan', '$foto')";
-    
-    if (mysqli_query($koneksi, $query)) {
-        echo "<script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: 'Data hewan berhasil ditambahkan',
-                showConfirmButton: false,
-                timer: 1500
-            }).then(() => {
-                window.location.href = 'hewan.php';
-            });
-        </script>";
-    } else {
-        $error = "Gagal menambahkan data: " . mysqli_error($koneksi);
+    if (!isset($error)) {
+        $query = "INSERT INTO hewan (id_pemilik, nama_hewan, jenis_hewan, ras, jenis_kelamin, tanggal_lahir, warna, keluhan, foto) 
+                  VALUES ('$id_pemilik', '$nama_hewan', '$jenis_hewan', '$ras', '$jenis_kelamin', '$tanggal_lahir', '$warna', '$keluhan', '$foto')";
+        
+        if (mysqli_query($koneksi, $query)) {
+            header("Location: hewan.php?success=Data hewan berhasil ditambahkan");
+            exit();
+        } else {
+            $error = "Gagal menambahkan data: " . mysqli_error($koneksi);
+        }
     }
 }
 ?>
@@ -64,7 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
@@ -146,6 +143,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/script.js"></script>
 </body>
 </html>
