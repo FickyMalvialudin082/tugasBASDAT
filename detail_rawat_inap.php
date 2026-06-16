@@ -12,7 +12,7 @@ if (!$koneksi) {
 }
 
 // Ambil ID dari URL
-$id = isset($_GET['id']) ? $_GET['id'] : 0;
+$id = isset($_GET['id']) ? mysqli_real_escape_string($koneksi, $_GET['id']) : 0;
 
 if ($id == 0) {
     echo "<script>alert('ID tidak valid!'); window.location.href='rawat_inap.php';</script>";

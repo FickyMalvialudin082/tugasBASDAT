@@ -6,7 +6,7 @@
 
 require_once 'database.php';
 
-$id = $_GET['id'];
+$id = mysqli_real_escape_string($koneksi, $_GET['id']);
 
 $query = "SELECT r.*, h.nama_hewan, h.jenis_hewan, h.ras, p.nama_pemilik, p.alamat, 
                  j.tanggal_pemeriksaan, d.nama_dokter

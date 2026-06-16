@@ -6,7 +6,7 @@
 
 require_once 'database.php';
 
-$id = $_GET['id'];
+$id = mysqli_real_escape_string($koneksi, $_GET['id']);
 
 // Ambil id_jadwal untuk update status
 $query = "SELECT id_jadwal FROM resep_obat WHERE id_resep = $id";

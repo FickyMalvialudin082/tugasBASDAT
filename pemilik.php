@@ -117,7 +117,7 @@ if (isset($_GET['hapus'])) {
 }
 
 // Ambil data
-$search = isset($_GET['search']) ? $_GET['search'] : '';
+$search = isset($_GET['search']) ? mysqli_real_escape_string($koneksi, $_GET['search']) : '';
 $where = $search ? "WHERE nama_pemilik LIKE '%$search%'" : "";
 $query = "SELECT * FROM pemilik $where ORDER BY id_pemilik DESC";
 $result = mysqli_query($koneksi, $query);

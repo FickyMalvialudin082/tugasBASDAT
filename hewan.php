@@ -7,7 +7,7 @@
 require_once 'database.php';
 
 // Cari data
-$search = isset($_GET['search']) ? $_GET['search'] : '';
+$search = isset($_GET['search']) ? mysqli_real_escape_string($koneksi, $_GET['search']) : '';
 $where = '';
 if ($search) {
     $where = "WHERE h.nama_hewan LIKE '%$search%' 
@@ -113,7 +113,7 @@ $result = mysqli_query($koneksi, $query);
                                     <button class="btn btn-sm btn-danger" onclick="hapusData(<?php echo $row['id_hewan']; ?>, '<?php echo $row['nama_hewan']; ?>')">
                                         <i class="fas fa-trash"></i>
                                     </button>
-                                 </td
+                                </td>
                             </tr>
                             <?php endwhile; ?>
                             

@@ -6,7 +6,7 @@
 
 require_once 'database.php';
 
-$id = $_GET['id'];
+$id = mysqli_real_escape_string($koneksi, $_GET['id']);
 
 // Ambil nama file foto
 $query = "SELECT foto FROM hewan WHERE id_hewan = $id";

@@ -12,14 +12,14 @@ $pemilik_result = mysqli_query($koneksi, $pemilik_query);
 
 // Proses tambah data
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $id_pemilik = $_POST['id_pemilik'];
-    $nama_hewan = $_POST['nama_hewan'];
-    $jenis_hewan = $_POST['jenis_hewan'];
-    $ras = $_POST['ras'];
-    $jenis_kelamin = $_POST['jenis_kelamin'];
-    $tanggal_lahir = $_POST['tanggal_lahir'];
-    $warna = $_POST['warna'];
-    $keluhan = $_POST['keluhan'];
+    $id_pemilik = mysqli_real_escape_string($koneksi, $_POST['id_pemilik']);
+    $nama_hewan = mysqli_real_escape_string($koneksi, $_POST['nama_hewan']);
+    $jenis_hewan = mysqli_real_escape_string($koneksi, $_POST['jenis_hewan']);
+    $ras = mysqli_real_escape_string($koneksi, $_POST['ras']);
+    $jenis_kelamin = mysqli_real_escape_string($koneksi, $_POST['jenis_kelamin']);
+    $tanggal_lahir = mysqli_real_escape_string($koneksi, $_POST['tanggal_lahir']);
+    $warna = mysqli_real_escape_string($koneksi, $_POST['warna']);
+    $keluhan = mysqli_real_escape_string($koneksi, $_POST['keluhan']);
     
     // Upload foto
     $foto = '';

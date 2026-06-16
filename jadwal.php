@@ -8,37 +8,38 @@ require_once 'database.php';
 
 // Tambah
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'tambah') {
-    $hewan = $_POST['id_hewan'];
-    $dokter = $_POST['id_dokter'];
-    $tanggal = $_POST['tanggal_pemeriksaan'];
-    $jam = $_POST['jam_pemeriksaan'];
-    $keluhan = $_POST['keluhan'];
-    $status = $_POST['status_pemeriksaan'];
+    $hewan = mysqli_real_escape_string($koneksi, $_POST['id_hewan']);
+    $dokter = mysqli_real_escape_string($koneksi, $_POST['id_dokter']);
+    $tanggal = mysqli_real_escape_string($koneksi, $_POST['tanggal_pemeriksaan']);
+    $jam = mysqli_real_escape_string($koneksi, $_POST['jam_pemeriksaan']);
+    $keluhan = mysqli_real_escape_string($koneksi, $_POST['keluhan']);
+    $status = mysqli_real_escape_string($koneksi, $_POST['status_pemeriksaan']);
     mysqli_query($koneksi, "INSERT INTO jadwal_pemeriksaan (id_hewan, id_dokter, tanggal_pemeriksaan, jam_pemeriksaan, keluhan, status_pemeriksaan) VALUES ('$hewan', '$dokter', '$tanggal', '$jam', '$keluhan', '$status')");
     echo "<script>Swal.fire('Berhasil!','Jadwal ditambahkan','success').then(()=>{location.href='jadwal.php';});</script>";
 }
 
 // Edit
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'edit') {
-    $id = $_POST['id_jadwal'];
-    $hewan = $_POST['id_hewan'];
-    $dokter = $_POST['id_dokter'];
-    $tanggal = $_POST['tanggal_pemeriksaan'];
-    $jam = $_POST['jam_pemeriksaan'];
-    $keluhan = $_POST['keluhan'];
-    $status = $_POST['status_pemeriksaan'];
+    $id = (int)$_POST['id_jadwal'];
+    $hewan = mysqli_real_escape_string($koneksi, $_POST['id_hewan']);
+    $dokter = mysqli_real_escape_string($koneksi, $_POST['id_dokter']);
+    $tanggal = mysqli_real_escape_string($koneksi, $_POST['tanggal_pemeriksaan']);
+    $jam = mysqli_real_escape_string($koneksi, $_POST['jam_pemeriksaan']);
+    $keluhan = mysqli_real_escape_string($koneksi, $_POST['keluhan']);
+    $status = mysqli_real_escape_string($koneksi, $_POST['status_pemeriksaan']);
     mysqli_query($koneksi, "UPDATE jadwal_pemeriksaan SET id_hewan='$hewan', id_dokter='$dokter', tanggal_pemeriksaan='$tanggal', jam_pemeriksaan='$jam', keluhan='$keluhan', status_pemeriksaan='$status' WHERE id_jadwal=$id");
     echo "<script>Swal.fire('Berhasil!','Jadwal diupdate','success').then(()=>{location.href='jadwal.php';});</script>";
 }
 
 // Hapus
 if (isset($_GET['hapus'])) {
-    mysqli_query($koneksi, "DELETE FROM jadwal_pemeriksaan WHERE id_jadwal=" . $_GET['hapus']);
+    $id = (int)$_GET['hapus'];
+    mysqli_query($koneksi, "DELETE FROM jadwal_pemeriksaan WHERE id_jadwal=$id");
     echo "<script>Swal.fire('Terhapus!','Jadwal dihapus','success').then(()=>{location.href='jadwal.php';});</script>";
 }
 
 // Search
-$search = isset($_GET['search']) ? $_GET['search'] : '';
+$search = isset($_GET['search']) ? mysqli_real_escape_string($koneksi, $_GET['search']) : '';
 $where = $search ? "WHERE h.nama_hewan LIKE '%$search%' OR j.tanggal_pemeriksaan = '$search'" : "";
 
 $query = "SELECT j.*, h.nama_hewan, d.nama_dokter 

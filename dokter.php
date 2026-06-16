@@ -8,34 +8,35 @@ require_once 'database.php';
 
 // Tambah
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'tambah') {
-    $nama = $_POST['nama_dokter'];
-    $spesialisasi = $_POST['spesialisasi'];
-    $telp = $_POST['no_telepon'];
-    $email = $_POST['email'];
-    $jadwal = $_POST['jadwal_praktik'];
+    $nama = mysqli_real_escape_string($koneksi, $_POST['nama_dokter']);
+    $spesialisasi = mysqli_real_escape_string($koneksi, $_POST['spesialisasi']);
+    $telp = mysqli_real_escape_string($koneksi, $_POST['no_telepon']);
+    $email = mysqli_real_escape_string($koneksi, $_POST['email']);
+    $jadwal = mysqli_real_escape_string($koneksi, $_POST['jadwal_praktik']);
     mysqli_query($koneksi, "INSERT INTO dokter (nama_dokter, spesialisasi, no_telepon, email, jadwal_praktik) VALUES ('$nama', '$spesialisasi', '$telp', '$email', '$jadwal')");
     echo "<script>Swal.fire('Berhasil!','Data dokter ditambahkan','success').then(()=>{location.href='dokter.php';});</script>";
 }
 
 // Edit
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'edit') {
-    $id = $_POST['id_dokter'];
-    $nama = $_POST['nama_dokter'];
-    $spesialisasi = $_POST['spesialisasi'];
-    $telp = $_POST['no_telepon'];
-    $email = $_POST['email'];
-    $jadwal = $_POST['jadwal_praktik'];
+    $id = (int)$_POST['id_dokter'];
+    $nama = mysqli_real_escape_string($koneksi, $_POST['nama_dokter']);
+    $spesialisasi = mysqli_real_escape_string($koneksi, $_POST['spesialisasi']);
+    $telp = mysqli_real_escape_string($koneksi, $_POST['no_telepon']);
+    $email = mysqli_real_escape_string($koneksi, $_POST['email']);
+    $jadwal = mysqli_real_escape_string($koneksi, $_POST['jadwal_praktik']);
     mysqli_query($koneksi, "UPDATE dokter SET nama_dokter='$nama', spesialisasi='$spesialisasi', no_telepon='$telp', email='$email', jadwal_praktik='$jadwal' WHERE id_dokter=$id");
     echo "<script>Swal.fire('Berhasil!','Data dokter diupdate','success').then(()=>{location.href='dokter.php';});</script>";
 }
 
 // Hapus
 if (isset($_GET['hapus'])) {
-    mysqli_query($koneksi, "DELETE FROM dokter WHERE id_dokter=" . $_GET['hapus']);
+    $id = (int)$_GET['hapus'];
+    mysqli_query($koneksi, "DELETE FROM dokter WHERE id_dokter=$id");
     echo "<script>Swal.fire('Terhapus!','Data dokter dihapus','success').then(()=>{location.href='dokter.php';});</script>";
 }
 
-$search = isset($_GET['search']) ? $_GET['search'] : '';
+$search = isset($_GET['search']) ? mysqli_real_escape_string($koneksi, $_GET['search']) : '';
 $where = $search ? "WHERE nama_dokter LIKE '%$search%'" : "";
 $result = mysqli_query($koneksi, "SELECT * FROM dokter $where ORDER BY id_dokter DESC");
 ?>

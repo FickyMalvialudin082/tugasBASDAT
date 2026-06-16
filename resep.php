@@ -8,7 +8,7 @@ require_once 'database.php';
 
 // Hapus resep
 if (isset($_GET['hapus'])) {
-    $id = $_GET['hapus'];
+    $id = (int)$_GET['hapus'];
     $query = "DELETE FROM resep_obat WHERE id_resep = $id";
     if (mysqli_query($koneksi, $query)) {
         echo "<script>alert('Resep berhasil dihapus!'); window.location.href='resep.php';</script>";
@@ -16,7 +16,7 @@ if (isset($_GET['hapus'])) {
 }
 
 // Search
-$search = isset($_GET['search']) ? $_GET['search'] : '';
+$search = isset($_GET['search']) ? mysqli_real_escape_string($koneksi, $_GET['search']) : '';
 $where = $search ? "WHERE h.nama_hewan LIKE '%$search%' OR r.obat LIKE '%$search%'" : "";
 
 // Query data resep
@@ -114,7 +114,7 @@ $result = mysqli_query($koneksi, $query);
                                     <button class="btn btn-sm btn-danger" onclick="hapusResep(<?php echo $row['id_resep']; ?>, '<?php echo $row['nama_hewan']; ?>')">
                                         <i class="fas fa-trash"></i>
                                     </button>
-                                 </td
+                                </td>
                             </tr>
                             <?php endwhile; ?>
                             
@@ -124,7 +124,7 @@ $result = mysqli_query($koneksi, $query);
                                     <i class="fas fa-prescription-bottle fa-3x text-muted"></i>
                                     <p class="text-muted mt-2">Belum ada resep obat</p>
                                     <a href="tambah_resep.php" class="btn btn-sm btn-primary">Tambah Resep Pertama</a>
-                                 </td
+                                </td>
                             </tr>
                             <?php endif; ?>
                         </tbody>

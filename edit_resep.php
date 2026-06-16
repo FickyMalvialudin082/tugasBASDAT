@@ -6,17 +6,17 @@
 
 require_once 'database.php';
 
-$id = $_GET['id'];
+$id = mysqli_real_escape_string($koneksi, $_GET['id']);
 $query = "SELECT * FROM resep_obat WHERE id_resep = $id";
 $result = mysqli_query($koneksi, $query);
 $data = mysqli_fetch_assoc($result);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $obat = $_POST['obat'];
-    $dosis = $_POST['dosis'];
-    $aturan_pakai = $_POST['aturan_pakai'];
-    $durasi = $_POST['durasi'];
-    $catatan = $_POST['catatan'];
+    $obat = mysqli_real_escape_string($koneksi, $_POST['obat']);
+    $dosis = mysqli_real_escape_string($koneksi, $_POST['dosis']);
+    $aturan_pakai = mysqli_real_escape_string($koneksi, $_POST['aturan_pakai']);
+    $durasi = mysqli_real_escape_string($koneksi, $_POST['durasi']);
+    $catatan = mysqli_real_escape_string($koneksi, $_POST['catatan']);
     
     $update = "UPDATE resep_obat SET 
                obat='$obat', 

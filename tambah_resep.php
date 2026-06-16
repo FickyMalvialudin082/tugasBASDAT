@@ -16,13 +16,13 @@ $jadwal_query = "SELECT j.*, h.nama_hewan, p.nama_pemilik
 $jadwal_result = mysqli_query($koneksi, $jadwal_query);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $id_jadwal = $_POST['id_jadwal'];
-    $id_hewan = $_POST['id_hewan'];
-    $obat = $_POST['obat'];
-    $dosis = $_POST['dosis'];
-    $aturan_pakai = $_POST['aturan_pakai'];
-    $durasi = $_POST['durasi'];
-    $catatan = $_POST['catatan'];
+    $id_jadwal = mysqli_real_escape_string($koneksi, $_POST['id_jadwal']);
+    $id_hewan = mysqli_real_escape_string($koneksi, $_POST['id_hewan']);
+    $obat = mysqli_real_escape_string($koneksi, $_POST['obat']);
+    $dosis = mysqli_real_escape_string($koneksi, $_POST['dosis']);
+    $aturan_pakai = mysqli_real_escape_string($koneksi, $_POST['aturan_pakai']);
+    $durasi = mysqli_real_escape_string($koneksi, $_POST['durasi']);
+    $catatan = mysqli_real_escape_string($koneksi, $_POST['catatan']);
     
     $query = "INSERT INTO resep_obat (id_jadwal, id_hewan, obat, dosis, aturan_pakai, durasi, catatan) 
               VALUES ('$id_jadwal', '$id_hewan', '$obat', '$dosis', '$aturan_pakai', '$durasi', '$catatan')";
