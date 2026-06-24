@@ -278,7 +278,7 @@ $total_jadwal = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as to
                                               FROM hewan h
                                               JOIN pemilik p ON h.id_pemilik = p.id_pemilik
                                               ORDER BY h.created_at DESC
-                                              LIMIT 5";
+                                              LIMIT 10";
                                     $result = mysqli_query($koneksi, $query);
                                     if (mysqli_num_rows($result) > 0):
                                     while ($row = mysqli_fetch_assoc($result)):
