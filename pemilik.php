@@ -1,7 +1,7 @@
 <?php
 // ============================================
 // FILE: pemilik.php
-// FUNGSI: CRUD Data Pemilik
+// FUNGSI: CRUD Data Pemilik + READ (Detail)
 // ============================================
 
 // Aktifkan error reporting untuk debugging
@@ -23,10 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
               VALUES ('$nama', '$jk', '$telp', '$alamat')";
     
     if (mysqli_query($koneksi, $query)) {
-        // Redirect dengan parameter sukses
         header("Location: pemilik.php?success=Data pemilik berhasil ditambahkan");
     } else {
-        // Redirect dengan parameter error
         header("Location: pemilik.php?error=Gagal menambahkan data: " . mysqli_error($koneksi));
     }
     exit();
@@ -172,6 +170,10 @@ $result = mysqli_query($koneksi, $query);
                                 <td><?php echo $row['no_telepon']; ?></td>
                                 <td><?php echo htmlspecialchars(substr($row['alamat'], 0, 40)); ?></td>
                                 <td>
+                                    <!-- TOMBOL DETAIL (READ) -->
+                                    <button class="btn btn-sm btn-info" onclick="detailData(<?php echo $row['id_pemilik']; ?>)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                     <button class="btn btn-sm btn-warning" onclick="editData(<?php echo $row['id_pemilik']; ?>, '<?php echo addslashes($row['nama_pemilik']); ?>', '<?php echo $row['jenis_kelamin']; ?>', '<?php echo $row['no_telepon']; ?>', '<?php echo addslashes($row['alamat']); ?>')">
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -274,8 +276,66 @@ $result = mysqli_query($koneksi, $query);
     </div>
 </div>
 
+<!-- ============================================ -->
+<!-- MODAL DETAIL (READ) -->
+<!-- ============================================ -->
+<div class="modal fade" id="detailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title"><i class="fas fa-eye"></i> Detail Pemilik</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detailContent">
+                <div class="text-center py-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Memuat data...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+// ============================================
+// FUNGSI DETAIL (READ) - Ambil data via AJAX
+// ============================================
+function detailData(id) {
+    // Tampilkan loading di modal
+    document.getElementById('detailContent').innerHTML = `
+        <div class="text-center py-3">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Memuat data...</p>
+        </div>
+    `;
+    
+    // Tampilkan modal
+    var modal = new bootstrap.Modal(document.getElementById('detailModal'));
+    modal.show();
+    
+    // Ambil data via AJAX
+    fetch('detail_pemilik.php?id=' + id)
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('detailContent').innerHTML = data;
+        })
+        .catch(error => {
+            document.getElementById('detailContent').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> Gagal memuat data: ${error}
+                </div>
+            `;
+        });
+}
+
 // ============================================
 // FUNGSI EDIT DATA
 // ============================================
@@ -290,9 +350,6 @@ function editData(id, nama, jk, telp, alamat) {
 
 // ============================================
 // FUNGSI KONFIRMASI HAPUS
-// ============================================
-// ============================================
-// FUNGSI KONFIRMASI HAPUS (DIPERBAIKI)
 // ============================================
 function confirmHapus(event, nama) {
     event.preventDefault();

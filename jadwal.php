@@ -1,7 +1,7 @@
 <?php
 // ============================================
 // FILE: jadwal.php
-// FUNGSI: CRUD Jadwal Pemeriksaan
+// FUNGSI: CRUD Jadwal Pemeriksaan + Detail + Filter Dokter
 // ============================================
 
 error_reporting(E_ALL);
@@ -91,9 +91,10 @@ if ($search) {
     $where = "WHERE h.nama_hewan LIKE '%$search%' OR j.tanggal_pemeriksaan = '$search'";
 }
 
-$query = "SELECT j.*, h.nama_hewan, d.nama_dokter 
+$query = "SELECT j.*, h.nama_hewan, h.jenis_hewan, p.nama_pemilik, p.no_telepon, d.nama_dokter, d.spesialisasi
           FROM jadwal_pemeriksaan j
           JOIN hewan h ON j.id_hewan = h.id_hewan
+          JOIN pemilik p ON h.id_pemilik = p.id_pemilik
           JOIN dokter d ON j.id_dokter = d.id_dokter
           $where
           ORDER BY j.tanggal_pemeriksaan DESC";
@@ -102,6 +103,96 @@ $result = mysqli_query($koneksi, $query);
 // Data untuk dropdown
 $hewan_list = mysqli_query($koneksi, "SELECT * FROM hewan ORDER BY nama_hewan");
 $dokter_list = mysqli_query($koneksi, "SELECT * FROM dokter ORDER BY nama_dokter");
+
+// ============================================
+// PROSES DETAIL JADWAL (LOAD VIA AJAX)
+// ============================================
+if (isset($_GET['detail']) && $_GET['detail'] == 'load') {
+    $detail_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+    
+    if ($detail_id == 0) {
+        echo '<div class="alert alert-danger">ID tidak valid!</div>';
+        exit();
+    }
+    
+    $detail_query = "SELECT j.*, 
+                     h.nama_hewan, h.jenis_hewan, h.ras, h.warna,
+                     p.nama_pemilik, p.no_telepon, p.alamat,
+                     d.nama_dokter, d.spesialisasi, d.jadwal_praktik
+                     FROM jadwal_pemeriksaan j
+                     JOIN hewan h ON j.id_hewan = h.id_hewan
+                     JOIN pemilik p ON h.id_pemilik = p.id_pemilik
+                     JOIN dokter d ON j.id_dokter = d.id_dokter
+                     WHERE j.id_jadwal = $detail_id";
+    $detail_result = mysqli_query($koneksi, $detail_query);
+    $data = mysqli_fetch_assoc($detail_result);
+    
+    if (!$data) {
+        echo '<div class="alert alert-danger">Data jadwal tidak ditemukan!</div>';
+        exit();
+    }
+    
+    // Cek resep
+    $resep_query = "SELECT * FROM resep_obat WHERE id_jadwal = $detail_id";
+    $resep_result = mysqli_query($koneksi, $resep_query);
+    $resep_data = mysqli_fetch_assoc($resep_result);
+    
+    $status_class = $data['status_pemeriksaan'] == 'Menunggu' ? 'badge-menunggu' : 
+                    ($data['status_pemeriksaan'] == 'Sedang Diperiksa' ? 'badge-diperiksa' : 'badge-selesai');
+    ?>
+    <div class="row">
+        <div class="col-md-6">
+            <h6 class="border-bottom pb-2"><i class="fas fa-paw"></i> Informasi Hewan</h6>
+            <table class="table table-borderless table-sm">
+                <tr><td width="130"><strong>Nama Hewan</strong></td><td>: <?php echo htmlspecialchars($data['nama_hewan']); ?></td></tr>
+                <tr><td><strong>Jenis</strong></td><td>: <?php echo htmlspecialchars($data['jenis_hewan']); ?></td></tr>
+                <tr><td><strong>Ras</strong></td><td>: <?php echo htmlspecialchars($data['ras']); ?></td></tr>
+                <tr><td><strong>Warna</strong></td><td>: <?php echo htmlspecialchars($data['warna']); ?></td></tr>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <h6 class="border-bottom pb-2"><i class="fas fa-user"></i> Informasi Pemilik</h6>
+            <table class="table table-borderless table-sm">
+                <tr><td width="130"><strong>Nama Pemilik</strong></td><td>: <?php echo htmlspecialchars($data['nama_pemilik']); ?></td></tr>
+                <tr><td><strong>No Telepon</strong></td><td>: <?php echo htmlspecialchars($data['no_telepon']); ?></td></tr>
+                <tr><td><strong>Alamat</strong></td><td>: <?php echo nl2br(htmlspecialchars($data['alamat'])); ?></td></tr>
+            </table>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-md-6">
+            <h6 class="border-bottom pb-2"><i class="fas fa-stethoscope"></i> Informasi Pemeriksaan</h6>
+            <table class="table table-borderless table-sm">
+                <tr><td width="130"><strong>Dokter</strong></td><td>: <?php echo htmlspecialchars($data['nama_dokter']); ?></td></tr>
+                <tr><td><strong>Spesialisasi</strong></td><td>: <?php echo htmlspecialchars($data['spesialisasi']); ?></td></tr>
+                <tr><td><strong>Jadwal Dokter</strong></td><td>: <?php echo htmlspecialchars($data['jadwal_praktik']); ?></td></tr>
+                <tr><td><strong>Tanggal</strong></td><td>: <?php echo date('d/m/Y', strtotime($data['tanggal_pemeriksaan'])); ?></td></tr>
+                <tr><td><strong>Jam</strong></td><td>: <?php echo date('H:i', strtotime($data['jam_pemeriksaan'])); ?></td></tr>
+                <tr><td><strong>Status</strong></td><td>: <span class="badge <?php echo $status_class; ?>"><?php echo $data['status_pemeriksaan']; ?></span></td></tr>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <h6 class="border-bottom pb-2"><i class="fas fa-notes-medical"></i> Catatan & Resep</h6>
+            <p><strong>Keluhan:</strong><br><?php echo nl2br(htmlspecialchars($data['keluhan'] ?? '-')); ?></p>
+            <?php if ($resep_data): ?>
+            <div class="mt-2">
+                <h6 class="border-bottom pb-1"><i class="fas fa-prescription-bottle"></i> Resep</h6>
+                <table class="table table-sm">
+                    <tr><td><strong>Obat</strong></td><td>: <?php echo htmlspecialchars($resep_data['obat']); ?></td></tr>
+                    <tr><td><strong>Dosis</strong></td><td>: <?php echo htmlspecialchars($resep_data['dosis']); ?></td></tr>
+                    <tr><td><strong>Aturan Pakai</strong></td><td>: <?php echo htmlspecialchars($resep_data['aturan_pakai']); ?></td></tr>
+                    <tr><td><strong>Durasi</strong></td><td>: <?php echo htmlspecialchars($resep_data['durasi']); ?></td></tr>
+                </table>
+            </div>
+            <?php else: ?>
+            <p class="text-muted"><i class="fas fa-info-circle"></i> Belum ada resep</p>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -128,7 +219,7 @@ $dokter_list = mysqli_query($koneksi, "SELECT * FROM dokter ORDER BY nama_dokter
             </button>
         </div>
 
-        <!-- NOTIFIKASI SUKSES -->
+        <!-- NOTIFIKASI -->
         <?php if ($success_msg): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="fas fa-check-circle"></i> <?php echo htmlspecialchars($success_msg); ?>
@@ -136,7 +227,6 @@ $dokter_list = mysqli_query($koneksi, "SELECT * FROM dokter ORDER BY nama_dokter
         </div>
         <?php endif; ?>
 
-        <!-- NOTIFIKASI ERROR -->
         <?php if ($error_msg): ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="fas fa-exclamation-triangle"></i> <?php echo htmlspecialchars($error_msg); ?>
@@ -150,7 +240,7 @@ $dokter_list = mysqli_query($koneksi, "SELECT * FROM dokter ORDER BY nama_dokter
                 <form method="GET" class="row">
                     <div class="col-md-8">
                         <input type="text" name="search" class="form-control"
-                               placeholder="Cari berdasarkan nama hewan atau tanggal (YYYY-MM-DD)..."
+                               placeholder="Cari berdasarkan nama hewan atau tanggal..."
                                value="<?php echo htmlspecialchars($search); ?>">
                     </div>
                     <div class="col-md-4">
@@ -208,6 +298,9 @@ $dokter_list = mysqli_query($koneksi, "SELECT * FROM dokter ORDER BY nama_dokter
                                     <?php endif; ?>
                                 </td>
                                 <td>
+                                    <button class="btn btn-sm btn-info" onclick="detailJadwal(<?php echo $row['id_jadwal']; ?>)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                     <button class="btn btn-sm btn-warning"
                                             onclick="editData(<?php echo $row['id_jadwal']; ?>, <?php echo $row['id_hewan']; ?>, <?php echo $row['id_dokter']; ?>, '<?php echo $row['tanggal_pemeriksaan']; ?>', '<?php echo $row['jam_pemeriksaan']; ?>', '<?php echo addslashes($row['keluhan']); ?>', '<?php echo $row['status_pemeriksaan']; ?>')">
                                         <i class="fas fa-edit"></i>
@@ -362,10 +455,66 @@ $dokter_list = mysqli_query($koneksi, "SELECT * FROM dokter ORDER BY nama_dokter
     </div>
 </div>
 
+<!-- ============================================ -->
+<!-- MODAL DETAIL -->
+<!-- ============================================ -->
+<div class="modal fade" id="detailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title"><i class="fas fa-eye"></i> Detail Jadwal Pemeriksaan</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detailContent">
+                <div class="text-center py-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Memuat data...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 // ============================================
-// FUNGSI EDIT DATA
+// FUNGSI DETAIL JADWAL
+// ============================================
+function detailJadwal(id) {
+    document.getElementById('detailContent').innerHTML = `
+        <div class="text-center py-3">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Memuat data...</p>
+        </div>
+    `;
+    
+    var modal = new bootstrap.Modal(document.getElementById('detailModal'));
+    modal.show();
+    
+    fetch('jadwal.php?detail=load&id=' + id)
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('detailContent').innerHTML = data;
+        })
+        .catch(error => {
+            document.getElementById('detailContent').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    Gagal memuat data: ${error.message}
+                </div>
+            `;
+        });
+}
+
+// ============================================
+// FUNGSI EDIT
 // ============================================
 function editData(id, hewan, dokter, tanggal, jam, keluhan, status) {
     document.getElementById('edit_id').value = id;
@@ -387,7 +536,7 @@ function confirmHapus(event, nama) {
     
     Swal.fire({
         title: 'Yakin ingin menghapus?',
-        text: "Jadwal pemeriksaan untuk hewan '" + nama + "' akan dihapus permanen!",
+        text: "Jadwal untuk hewan '" + nama + "' akan dihapus permanen!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
@@ -403,7 +552,7 @@ function confirmHapus(event, nama) {
 }
 
 // ============================================
-// AUTO HIDE ALERT SETELAH 3 DETIK
+// AUTO HIDE ALERT
 // ============================================
 setTimeout(function() {
     var alerts = document.querySelectorAll('.alert');

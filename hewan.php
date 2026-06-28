@@ -161,6 +161,10 @@ $result = mysqli_query($koneksi, $query);
                                 <td><?php echo htmlspecialchars($row['nama_pemilik']); ?></td>
                                 <td><?php echo htmlspecialchars(substr($row['keluhan'], 0, 30)) . (strlen($row['keluhan']) > 30 ? '...' : ''); ?></td>
                                 <td>
+                                    <!-- TOMBOL DETAIL (READ) -->
+                                    <button class="btn btn-sm btn-info" onclick="detailHewan(<?php echo $row['id_hewan']; ?>)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                     <a href="edit_hewan.php?id=<?php echo $row['id_hewan']; ?>" class="btn btn-sm btn-warning">
                                         <i class="fas fa-edit"></i>
                                     </a>
@@ -188,10 +192,68 @@ $result = mysqli_query($koneksi, $query);
     </div>
 </div>
 
+<!-- ============================================ -->
+<!-- MODAL DETAIL HEWAN -->
+<!-- ============================================ -->
+<div class="modal fade" id="detailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title"><i class="fas fa-eye"></i> Detail Hewan</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detailContent">
+                <div class="text-center py-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Memuat data...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 // ============================================
-// FUNGSI KONFIRMASI HAPUS (SAMA SEPERTI PEMILIK)
+// FUNGSI DETAIL HEWAN (READ) - Ambil data via AJAX
+// ============================================
+function detailHewan(id) {
+    // Tampilkan loading di modal
+    document.getElementById('detailContent').innerHTML = `
+        <div class="text-center py-3">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Memuat data...</p>
+        </div>
+    `;
+    
+    // Tampilkan modal
+    var modal = new bootstrap.Modal(document.getElementById('detailModal'));
+    modal.show();
+    
+    // Ambil data via AJAX
+    fetch('detail_hewan.php?id=' + id)
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('detailContent').innerHTML = data;
+        })
+        .catch(error => {
+            document.getElementById('detailContent').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> Gagal memuat data: ${error}
+                </div>
+            `;
+        });
+}
+
+// ============================================
+// FUNGSI KONFIRMASI HAPUS
 // ============================================
 function confirmHapus(event, nama) {
     event.preventDefault();
